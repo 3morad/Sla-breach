@@ -24,9 +24,13 @@ inject_css()
 # ── Load model artefacts ───────────────────────────────────────────────────────
 @st.cache_resource
 def load_sla_model():
+    app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_dir = os.path.join(app_root, "model")
+    model_path = os.path.join(model_dir, "sla_xgboost_model.json")
+    config_path = os.path.join(model_dir, "model_config.pkl")
     model = xgb.XGBClassifier()
-    model.load_model("sla_xgboost_model.json")
-    with open("model_config.pkl", "rb") as f:
+    model.load_model(model_path)
+    with open(config_path, "rb") as f:
         cfg = pickle.load(f)
     return model, cfg["scaler"], cfg["feature_cols"], cfg.get("optimal_threshold", 0.5)
 
@@ -51,7 +55,7 @@ with st.sidebar:
         with st.expander("Feature list"):
             st.write(feature_cols)
     else:
-        st.warning("Model files not found.\n\nUpload `sla_xgboost_model.json` and `model_config.pkl` to the project root.")
+        st.warning("Model files not found.\n\nUpload `sla_xgboost_model.json` and `model_config.pkl` to the `model/` folder.")
     st.markdown("---")
     st.markdown(
         "**Algorithm:** XGBoost  \n"
